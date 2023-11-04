@@ -13,7 +13,7 @@ export const App = () => {
   const [isShownBtn, setIsShownBtn] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
 
@@ -21,13 +21,11 @@ export const App = () => {
     setSearchQuery(searchQuery);
     setImages([]);
     setPage(1);
-
-    // fetchImages(searchQuery, 1);
   };
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
-    // fetchImages(searchQuery, nextPage);
+    fetchImagesData(searchQuery, nextPage);
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
@@ -44,8 +42,38 @@ export const App = () => {
     setLargeImageURL('');
   };
 
+  const fetchImagesData = (searchQuery, page) => {
+    setLoading(true);
+
+    fetchImages(searchQuery, page)
+      .then(response => {
+        setImages(prevImages => [...prevImages, ...response.data.hits]);
+        setPage(page);
+        setIsShownBtn(true);
+        setError(null);
+
+        if (response.data.hits.length <= 11) {
+          setIsShownBtn(false);
+          if (images.length === 0) {
+            alert('Nothing was found for your request');
+            return;
+          }
+        }
+      })
+      .catch(error => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
-    fetchImages = (searchQuery, page) => {
+    if (!searchQuery) {
+      return;
+    }
+
+    const fetchImagesData = (searchQuery, page) => {
       setLoading(true);
 
       fetchImages(searchQuery, page)
@@ -54,10 +82,12 @@ export const App = () => {
           setPage(page);
           setIsShownBtn(true);
           setError(null);
+
           if (response.data.hits.length <= 11) {
             setIsShownBtn(false);
             if (images.length === 0) {
               alert('Nothing was found for your request');
+              return;
             }
           }
         })
@@ -69,8 +99,9 @@ export const App = () => {
         });
     };
 
-    fetchImages(searchQuery, page);
+    fetchImagesData(searchQuery, page);
   }, [searchQuery, page]);
+
   return (
     <StyledApp>
       <Searchbar onSubmit={handleSubmit} />
