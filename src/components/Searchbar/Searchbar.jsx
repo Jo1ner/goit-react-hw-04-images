@@ -1,43 +1,39 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import { StyledSearchBar } from './Searchbar.styled';
 
-export default class Searchbar extends Component {
-  state = {
-    searchText: '',
+export const Searchbar = ({ onSubmit }) => {
+  const [searchText, setSearchText] = useState('');
+
+  const handleChange = evt => {
+    setSearchText(evt.target.value);
   };
 
-  handleChange = evt => {
-    this.setState({ searchText: evt.target.value });
-  };
-
-  handleSubmit = evt => {
+  const handleSubmit = evt => {
     evt.preventDefault();
-    if (this.state.searchText.trim() === '') {
+    if (searchText.trim() === '') {
       alert('The search field is empty');
       return;
     }
-    this.props.onSubmit(this.state.searchText);
+    onSubmit(searchText);
   };
 
-  render() {
-    return (
-      <StyledSearchBar className="searchbar">
-        <form onSubmit={this.handleSubmit} className="form">
-          <button type="submit" className="button">
-            <span className="button-label">Search</span>
-          </button>
+  return (
+    <StyledSearchBar className="searchbar">
+      <form onSubmit={handleSubmit} className="form">
+        <button type="submit" className="button">
+          <span className="button-label">Search</span>
+        </button>
 
-          <input
-            className="input"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.state.searchText}
-            onChange={this.handleChange}
-          />
-        </form>
-      </StyledSearchBar>
-    );
-  }
-}
+        <input
+          className="input"
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={searchText}
+          onChange={handleChange}
+        />
+      </form>
+    </StyledSearchBar>
+  );
+};
