@@ -9,6 +9,7 @@ import { StyledApp } from './App.styled';
 
 export const App = () => {
   const [images, setImages] = useState([]);
+  const [totalImages, setTotalImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isShownBtn, setIsShownBtn] = useState(false);
   const [error, setError] = useState(null);
@@ -30,14 +31,10 @@ export const App = () => {
           setImages(prevImages => [...prevImages, ...response.data.hits]);
           setPage(page);
           setIsShownBtn(true);
-          setError(null);
-
-          if (response.data.hits.length <= 11) {
-            setIsShownBtn(false);
-            if (images.length === 0) {
-              alert('Nothing was found for your request');
-              return;
-            }
+          setTotalImages(response.data.totalHits);
+          if (response.data.total === 0) {
+            alert('Nothing was found for your request');
+            return;
           }
         })
         .catch(error => {
@@ -79,7 +76,9 @@ export const App = () => {
         <ImageGallery images={images} onOpenModal={handleOpenModal} />
       )}
       {loading && <Loader />}
-      {images.length > 0 && isShownBtn && <Button onClick={handleLoadMore} />}
+      {page < totalImages / 12 && isShownBtn && (
+        <Button onClick={handleLoadMore} />
+      )}
       {showModal && (
         <Modal onCloseModal={handleCloseModal}>
           <img src={largeImageURL} alt="" />
