@@ -17,57 +17,6 @@ export const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
 
-  const handleSubmit = searchQuery => {
-    setSearchQuery(searchQuery);
-    setImages([]);
-    setPage(1);
-  };
-
-  const handleLoadMore = () => {
-    const nextPage = page + 1;
-    fetchImagesData(searchQuery, nextPage);
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-  };
-
-  const handleOpenModal = largeImageURL => {
-    setShowModal(true);
-    setLargeImageURL(largeImageURL);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setLargeImageURL('');
-  };
-
-  const fetchImagesData = (searchQuery, page) => {
-    setLoading(true);
-
-    fetchImages(searchQuery, page)
-      .then(response => {
-        setImages(prevImages => [...prevImages, ...response.data.hits]);
-        setPage(page);
-        setIsShownBtn(true);
-        setError(null);
-
-        if (response.data.hits.length <= 11) {
-          setIsShownBtn(false);
-          if (images.length === 0) {
-            alert('Nothing was found for your request');
-            return;
-          }
-        }
-      })
-      .catch(error => {
-        setError(error.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
   useEffect(() => {
     if (!searchQuery) {
       return;
@@ -101,6 +50,26 @@ export const App = () => {
 
     fetchImagesData(searchQuery, page);
   }, [searchQuery, page]);
+
+  const handleSubmit = searchQuery => {
+    setSearchQuery(searchQuery);
+    setImages([]);
+    setPage(1);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  const handleOpenModal = largeImageURL => {
+    setShowModal(true);
+    setLargeImageURL(largeImageURL);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setLargeImageURL('');
+  };
 
   return (
     <StyledApp>
